@@ -28,10 +28,10 @@ class AuthService {
         if (userDoc.exists) {
           // Si le document existe, le convertir en objet ToBuyUser
           // Utilisation de .data() et cast explicite pour plus de sécurité
-           final data = userDoc.data() as Map<String, dynamic>?;
+           final data = userDoc.data();
            if (data != null) {
               // Utilisation du factory constructor défini dans le modèle
-              return ToBuyUser.fromFirestore(userDoc as DocumentSnapshot<Map<String, dynamic>>, null);
+              return ToBuyUser.fromFirestore(userDoc, null);
            } else {
               print("Erreur: Document utilisateur ${firebaseUser.uid} vide.");
               // Gérer ce cas: créer le doc? retourner null?
@@ -116,9 +116,9 @@ class AuthService {
          // Récupérer les données de Firestore (le stream 'user' le fera aussi, mais ici c'est immédiat)
          final userDoc = await _firestore.collection(_usersCollection).doc(userCredential.user!.uid).get();
          if (userDoc.exists) {
-           final data = userDoc.data() as Map<String, dynamic>?;
+           final data = userDoc.data();
            if (data != null) {
-             return ToBuyUser.fromFirestore(userDoc as DocumentSnapshot<Map<String, dynamic>>, null);
+             return ToBuyUser.fromFirestore(userDoc, null);
            } else {
               print("Erreur: Document utilisateur ${userCredential.user!.uid} vide après connexion.");
               // Tenter de recréer l'entrée? Déconnecter?
@@ -168,9 +168,9 @@ class AuthService {
      try {
         final userDoc = await _firestore.collection(_usersCollection).doc(firebaseUser.uid).get();
         if (userDoc.exists) {
-          final data = userDoc.data() as Map<String, dynamic>?;
+          final data = userDoc.data();
           if (data != null) {
-             return ToBuyUser.fromFirestore(userDoc as DocumentSnapshot<Map<String, dynamic>>, null);
+             return ToBuyUser.fromFirestore(userDoc, null);
           }
         }
         // Si le doc n'existe pas ou est vide, retourne null (ou gère l'erreur)

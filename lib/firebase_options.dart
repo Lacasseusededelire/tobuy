@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -65,4 +56,34 @@ class DefaultFirebaseOptions {
     storageBucket: 'tobuy-app-fa605.firebasestorage.app',
     iosBundleId: 'com.example.tobuy',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBRbY8WLTcFcAvSC9EebOgAtht4gWZm6dU',
+    appId: '1:784625842499:web:b237a033712774db6017f6',
+    messagingSenderId: '784625842499',
+    projectId: 'tobuy-app-fa605',
+    authDomain: 'tobuy-app-fa605.firebaseapp.com',
+    storageBucket: 'tobuy-app-fa605.firebasestorage.app',
+    measurementId: 'G-R9MWZ7TET0',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAYGS-1FxYH7Zvri_uuwl1eUD294QwuWNI',
+    appId: '1:784625842499:ios:43b1ffdeb121ac656017f6',
+    messagingSenderId: '784625842499',
+    projectId: 'tobuy-app-fa605',
+    storageBucket: 'tobuy-app-fa605.firebasestorage.app',
+    iosBundleId: 'com.example.tobuy',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBRbY8WLTcFcAvSC9EebOgAtht4gWZm6dU',
+    appId: '1:784625842499:web:b35842c75453daf76017f6',
+    messagingSenderId: '784625842499',
+    projectId: 'tobuy-app-fa605',
+    authDomain: 'tobuy-app-fa605.firebaseapp.com',
+    storageBucket: 'tobuy-app-fa605.firebasestorage.app',
+    measurementId: 'G-ESJ866H766',
+  );
+
 }
