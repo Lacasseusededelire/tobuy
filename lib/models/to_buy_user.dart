@@ -11,30 +11,41 @@ class ToBuyUser {
     required this.createdAt,
   });
 
-  // Factory constructor pour créer une instance depuis Firestore
   factory ToBuyUser.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot, SnapshotOptions? options) {
     final data = snapshot.data();
-    // Vérification pour robustesse
     if (data == null) {
       throw StateError("Données manquantes pour ToBuyUser ${snapshot.id}");
     }
     return ToBuyUser(
-      uid: snapshot.id, // Utilise l'ID du document comme uid
-      email: data['email'] as String? ?? '', // Cast explicite et valeur par défaut
-      createdAt: (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(), // Cast explicite
+      uid: snapshot.id,
+      email: data['email'] as String? ?? '',
+      createdAt: (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
-  // Méthode pour convertir une instance en Map pour Firestore
   Map<String, dynamic> toFirestore() {
     return {
-      // L'uid n'est pas stocké dans les champs, c'est l'ID du document
       'email': email,
       'created_at': Timestamp.fromDate(createdAt),
     };
   }
 
-  // Méthode toString pour faciliter le débogage
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'email': email,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  factory ToBuyUser.fromMap(Map<String, dynamic> map) {
+    return ToBuyUser(
+      uid: map['uid'] as String,
+      email: map['email'] as String,
+      createdAt: DateTime.parse(map['created_at'] as String),
+    );
+  }
+
   @override
   String toString() {
     return 'ToBuyUser(uid: $uid, email: $email, createdAt: $createdAt)';

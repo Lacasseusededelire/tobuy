@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'shopping_item.dart'; // Importer le modèle ShoppingItem
+import 'shopping_item.dart';
 
 class ShoppingList {
-  final String id; // ID unique de la liste (ID du document Firestore)
-  final String userId; // Référence à l'utilisateur propriétaire
+  final String id;
+  final String userId;
   final List<ShoppingItem> items;
-  final double totalPrice; // Calculé à partir des items
+  final double totalPrice;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,35 +15,25 @@ class ShoppingList {
     required this.items,
     required this.createdAt,
     required this.updatedAt,
-    // Le prix total est calculé automatiquement à partir de la liste d'items fournie
   }) : totalPrice = items.fold(0.0, (sum, item) => sum + item.totalItemPrice);
 
-  // Factory pour créer depuis Firestore
   factory ShoppingList.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot, SnapshotOptions? options) {
     final data = snapshot.data();
-     if (data == null) {
-        throw StateError("Données manquantes pour ShoppingList ${snapshot.id}");
-     }
-
-    // Traitement du tableau 'items'
+    if (data == null) {
+      throw StateError("Données manquantes pour ShoppingList ${snapshot.id}");
+    }
     final List<dynamic> itemsData = data['items'] as List<dynamic>? ?? [];
     final List<ShoppingItem> itemsList = itemsData.asMap().entries.map((entry) {
-       final index = entry.key;
-       // Assure que chaque élément du tableau est bien une Map
-       if (entry.value is Map<String, dynamic>) {
-         final itemMap = entry.value as Map<String, dynamic>;
-         // Utilise l'ID stocké dans la map s'il existe, sinon génère un ID basé sur l'index
-         // NOTE: Il est préférable de stocker un ID unique (généré par uuid) dans la map lors de l'ajout
-         final itemId = itemMap['id'] as String? ?? '${snapshot.id}_item_$index';
-         return ShoppingItem.fromMap(itemMap, itemId);
-       } else {
-         // Gère le cas où un élément du tableau n'est pas une Map valide
-         print("Élément invalide dans la liste d'items pour ${snapshot.id} à l'index $index: ${entry.value}");
-         // Retourne un item vide ou lance une erreur selon la robustesse souhaitée
-         return ShoppingItem(id: '${snapshot.id}_invalid_$index', name: 'Erreur Item', quantity: 0, unitPrice: 0);
-       }
+      final index = entry.key;
+      if (entry.value is Map<String, dynamic>) {
+        final itemMap = entry.value as Map<String, dynamic>;
+        final itemId = itemMap['id'] as String? ?? '${snapshot.id}_item_$index';
+        return ShoppingItem.fromMap(itemMap, itemId);
+      } else {
+        print("Élément invalide dans la liste d'items pour ${snapshot.id} à l'index $index: ${entry.value}");
+        return ShoppingItem(id: '${snapshot.id}_invalid_$index', name: 'Erreur Item', quantity: 0, unitPrice: 0);
+      }
     }).toList();
-
 
     return ShoppingList(
       id: snapshot.id,
@@ -51,44 +41,60 @@ class ShoppingList {
       items: itemsList,
       createdAt: (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updated_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      // totalPrice est recalculé dans le constructeur
     );
   }
 
-  // Méthode pour convertir en Map pour Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'user_id': userId,
-      // Convertit la liste de ShoppingItem en liste de Maps
-      'items': items.map((item) => item.toMap()).toList(),
-      'total_price': totalPrice, // Stocker le total calculé
+      'items': items.map((item) => item.toFirestore()).toList(),
+      'total_price': totalPrice,
       'created_at': Timestamp.fromDate(createdAt),
-      'updated_at': Timestamp.fromDate(updatedAt), // Sera souvent mis à jour par le service
+      'updated_at': Timestamp.fromDate(updatedAt),
     };
   }
 
-   // Méthode CopyWith pour faciliter les mises à jour immuables
-   ShoppingList copyWith({
-     String? id,
-     String? userId,
-     List<ShoppingItem>? items,
-     DateTime? createdAt,
-     DateTime? updatedAt,
-   }) {
-     // Si la liste d'items change, le prix total est recalculé automatiquement
-     return ShoppingList(
-       id: id ?? this.id,
-       userId: userId ?? this.userId,
-       items: items ?? this.items,
-       createdAt: createdAt ?? this.createdAt,
-       updatedAt: updatedAt ?? this.updatedAt,
-     );
-   }
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'items': items.map((item) => item.toMap()).toList(),
+      'total_price': totalPrice,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
 
-   // Méthode toString pour faciliter le débogage
-   @override
-   String toString() {
-     return 'ShoppingList(id: $id, userId: $userId, items: ${items.length} items, totalPrice: $totalPrice, createdAt: $createdAt, updatedAt: $updatedAt)';
-   }
+  factory ShoppingList.fromMap(Map<String, dynamic> map) {
+    return ShoppingList(
+      id: map['id'] as String,
+      userId: map['user_id'] as String,
+      items: (map['items'] as List<dynamic>)
+          .map((item) => ShoppingItem.fromMap(item as Map<String, dynamic>, item['id'] as String))
+          .toList(),
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  ShoppingList copyWith({
+    String? id,
+    String? userId,
+    List<ShoppingItem>? items,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return ShoppingList(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      items: items ?? this.items,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'ShoppingList(id: $id, userId: $userId, items: ${items.length} items, totalPrice: $totalPrice, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
 }
-

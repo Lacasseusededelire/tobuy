@@ -1,17 +1,14 @@
-// Ce modèle est utilisé par l'IA (Membre 3) mais défini ici car partagé
-
 class Suggestion {
-  final String name; // Nom de l'aliment suggéré
-  final String reason; // Pourquoi il est suggéré
-  final double estimatedPrice; // Prix estimé (optionnel)
+  final String name;
+  final String reason;
+  final double estimatedPrice;
 
   Suggestion({
     required this.name,
     required this.reason,
-    this.estimatedPrice = 0.0, // Prix par défaut à 0 si non fourni
+    required this.estimatedPrice,
   });
 
-  // Factory constructor pour créer depuis une Map (ex: réponse JSON de l'API Gemini)
   factory Suggestion.fromJson(Map<String, dynamic> json) {
     return Suggestion(
       name: json['name'] as String? ?? 'Inconnu',
@@ -20,7 +17,6 @@ class Suggestion {
     );
   }
 
-  // Méthode pour convertir en Map (moins utile ici, mais pour la complétude)
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -29,7 +25,18 @@ class Suggestion {
     };
   }
 
-  // Méthode toString pour faciliter le débogage
+  factory Suggestion.fromMap(Map<String, dynamic> map) {
+    return Suggestion(
+      name: map['name'] as String,
+      reason: map['reason'] as String,
+      estimatedPrice: (map['estimated_price'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return toJson();
+  }
+
   @override
   String toString() {
     return 'Suggestion(name: $name, reason: $reason, estimatedPrice: $estimatedPrice)';
