@@ -1,122 +1,127 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+// Importe les options Firebase générées par FlutterFire CLI
+// Assurez-vous que ce fichier existe après avoir exécuté `flutterfire configure`
+import 'firebase_options.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// --- Imports des services et modèles (Assurez-vous que ces fichiers existent aux bons endroits) ---
+import 'package:tobuy/backend/services/auth_service.dart';
+import 'package:tobuy/models/to_buy_user.dart';
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+// --- Placeholders pour les futurs imports (gérés par Membre 2 et 3) ---
+// import 'package:tobuy/frontend/screens/login_screen.dart';
+// import 'package:tobuy/frontend/screens/home_screen.dart';
+// import 'package:tobuy/frontend/providers/theme_provider.dart';
+// import 'package:tobuy/frontend/theme/app_theme.dart';
+// import 'package:tobuy/ia/services/gemini_service.dart'; // Exemple pour IA
+// import 'package:tobuy/frontend/providers/shopping_list_provider.dart'; // Exemple pour listes
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+// --- Fin des Placeholders ---
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+void main() async {
+  // Étape 1: Assurer l'initialisation des bindings Flutter
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  // Étape 2: Initialiser Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+  // Étape 3: Lancer l'application Flutter avec les Providers
+  runApp(
+    MultiProvider(
+      providers: [
+        // Provider pour le service d'authentification (Membre 1)
+        Provider<AuthService>(
+          create: (_) => AuthService(),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+
+        // StreamProvider pour l'état de l'utilisateur (Membre 1)
+        StreamProvider<ToBuyUser?>(
+          create: (context) => context.read<AuthService>().user,
+          initialData: null,
+        ),
+
+        // --- Placeholders pour les Providers des autres membres ---
+        // ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
+        // ChangeNotifierProvider<ShoppingListProvider>(create: (context) => ShoppingListProvider(context.read<AuthService>())),
+        // Provider<GeminiService>(create: (_) => GeminiService()),
+        // --- Fin des Placeholders Providers ---
+      ],
+      child: const ToBuyApp(), // Widget racine de l'application
+    ),
+  );
+}
+
+// Widget racine de l'application
+class ToBuyApp extends StatelessWidget {
+  const ToBuyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // --- Récupération des Providers (Exemple pour le thème - sera fait par Membre 2) ---
+    // final themeProvider = Provider.of<ThemeProvider>(context); // Exemple
+
+    return MaterialApp(
+      title: 'ToBuy', // Sera mis dans constants/strings.dart par Membre 2
+      debugShowCheckedModeBanner: false,
+
+      // --- Gestion du Thème (Sera géré par Membre 2 via ThemeProvider) ---
+      theme: ThemeData.light(useMaterial3: true), // Thème light de base
+      darkTheme: ThemeData.dark(useMaterial3: true), // Thème dark de base
+      themeMode: ThemeMode.system, // Thème système par défaut
+      // theme: AppTheme.lightTheme, // Exemple d'appel au thème light défini par Membre 2
+      // darkTheme: AppTheme.darkTheme, // Exemple d'appel au thème dark défini par Membre 2
+      // themeMode: themeProvider.themeMode, // Exemple: le mode est contrôlé par le provider
+      // --- Fin Gestion du Thème ---
+
+      // --- Logique d'affichage initial (AuthGate) ---
+      home: const AuthGate(),
+
+      // --- Routes (Seront définies par Membre 2) ---
+      // routes: {
+      //   '/login': (context) => const LoginScreen(),
+      //   '/register': (context) => const RegisterScreen(),
+      //   '/home': (context) => const HomeScreen(),
+      // },
+      // --- Fin Routes ---
     );
   }
 }
+
+// Widget pour gérer l'affichage en fonction de l'authentification
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Récupère l'état de l'utilisateur depuis le StreamProvider
+    final toBuyUser = Provider.of<ToBuyUser?>(context);
+
+    // Si l'utilisateur est connecté
+    if (toBuyUser != null) {
+      // Affiche l'écran d'accueil (HomeScreen - à implémenter par Membre 2)
+      // return const HomeScreen(); // Décommenter quand HomeScreen existe
+      print("Utilisateur connecté: ${toBuyUser.email}"); // Log pour vérifier
+      return Scaffold(
+          appBar: AppBar(title: const Text("ToBuy - Accueil")),
+          body: Center(child: Text("Connecté! (${toBuyUser.email})\n(HomeScreen à venir)"))); // Placeholder
+    }
+    // Sinon (utilisateur non connecté)
+    else {
+      // Affiche l'écran de connexion (LoginScreen - à implémenter par Membre 2)
+      // return const LoginScreen(); // Décommenter quand LoginScreen existe
+      print("Utilisateur non connecté"); // Log pour vérifier
+      return Scaffold(
+          appBar: AppBar(title: const Text("ToBuy - Connexion")),
+          body: const Center(child: Text("Non connecté\n(LoginScreen à venir)"))); // Placeholder
+    }
+  }
+}
+
+// --- Widgets Placeholder (à supprimer par Membre 2) ---
+// class LoginScreen extends StatelessWidget { ... }
+// class HomeScreen extends StatelessWidget { ... }
+// --- Fin Widgets Placeholder ---
